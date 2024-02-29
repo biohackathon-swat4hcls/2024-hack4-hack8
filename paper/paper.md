@@ -1,41 +1,122 @@
 ---
-title: 'BioHackEU23 report: Template for the very long title'
-title_short: 'BioHackEU23 #26: unknown chemical substances'
+title: 'SWAT4HCLS Biohackathon 2024 report: Beyond the Void & AI Prompt engineering for SPARQL'
+title_short: 'SWAT4HCLS 2024 Hackathon'
 tags:
-  - cheminformatics
-  - PubChem
-  - unknown chemical substances
+  - SPARQL
+  - ChatGPT
+  - AI
+  - WikiPathways
 authors:
-  - name: First Author
-    affiliation: 1
-  - name: Last Author
+  - name: Andra Waagmeester
     orcid: 0000-0000-0000-0000
+    affiliation: 1
+  - name: Mark Doerr
+    orcid: 0000-0003-3270-6895
     affiliation: 2
+  - name: Tooba Abbassi-Daloii
+    orchid: 0000-0002-4904-3269
+    affiliation: 3
+  - name: Egon Willighagen
+    orchid: 0000-0002-
+    affiliation: 3
+  - name: Alexander Kellmann
+    orchid: 0000-0001-6108-5552
+    affiliation: 4
+
 affiliations:
-  - name: First Affiliation
+  - name: Micelio BV
     index: 1
-  - name: Second Affiliation
+  - name: Inst. f. Biochemistry, University Greifswald
     index: 2
-date: 8 November 2023
+  - name: Dept of Bioinformatics - BiGCaT, NUTRIM, FHML, Maastricht University
+    index: 3
+  - name: Genomics Coordination Center, University Medical Center Groningen 
+    index: 4
+date: 29 February 2024
 cito-bibliography: paper.bib
-event: BH23EU
-biohackathon_name: "BioHackathon Europe 2023"
-biohackathon_url:   "https://biohackathon-europe.org/"
-biohackathon_location: "Barcelona, Spain, 2023"
-group: Project 26
+event: SWAT4HCLS24
+biohackathon_name: "BioHackathon SWAT4HCLS 2024"
+biohackathon_url:   "https://www.swat4ls.org/workshops/leiden2024/hackathon/"
+biohackathon_location: "Leiden, the Netherlands, 2024"
+group: Project 4-8
 # URL to project git repo --- should contain the actual paper.md:
 git_url: https://github.com/biohackrxiv/publication-template
 # This is the short authors description that is used at the
 # bottom of the generated paper (typically the first two authors):
-authors_short: First Author \emph{et al.}
+authors_short: Andra Waagmeester \emph{et al.}
 ---
 
 
 # Introduction
 
-As part of the BioHackathon Europe 2023, we here report...
+As part of the BioHackathon SWAT4LSHC 2024, we here report on the biohackathon SWAT4HCLS topic AI prompt engineering for SPARQL. During the introductions we noticed that there is a possible overlap between this project and the other project Beyond the VoID. 
 
-# Formatting
+## Overview of Related work / projects
+
+## WikiPathways VoID use case
+
+<!-- discuss with Marvin -->
+ 
+ Involved: Jerven (code fixes), Egon testing, Marvin (WP SPARQL endpoint), ...
+
+
+* things found
+    * graph IRI wrong for `servicedescription` (Egon/Marvin)
+        * discussed, will be updated
+    * Virtuoso limit to 10k impacts output (Egon/Marvin)
+    * statistics on GPML/WPRDF separation needed (or only WPRDF)
+        * e.g. http://rdf.wikipathways.org/wprdf/ for the WPRDF, and  http://rdf.wikipathways.org/gpmlrdf/ for the GPMLRDF
+        * also ontologies in separate graphs?
+    * license? CCO, but do we want that on each dataset
+* 
+
+
+
+
+## Setting up local virtuoso triple store
+
+We installed virtuoso and loaded the drungbank database into the triple store. We already had prepared a .nq version of Drugbank, which had been created from previously. [@citesAsRelated:Wishart2017]
+
+With the following steps:
+
+Running the docker
+
+- configuring the virtuoso.ini:
+   ```DirsAllowed              = ., ../vad, /usr/share/proj, /data``
+
+- copy the drugbank.nq to local /data volume
+
+### starting the virtuoso cli client:
+
+We used the isql console to load some data via the bulk loader:
+  ```isql 1111 dba dba```
+
+
+The ld_dir command is used to select which data to load (in this case /data/drugbank.nq).
+ ```ld_dir ('/data', '*.nq', 'http://localhost:8890/drugbank') ;```
+
+To bulk load the data into the Virtuoso server:
+  ```rdf_loader_run();```
+
+To prevent a rollback when restarting the container:
+  ```checkpoint;```
+
+The drungbank graph is now locally available through the browser at localhost:8890
+
+
+## Sample Queries
+
+### Getting simple drug information
+ 
+We chose Aspirin as a sample drug and ask for the "drugID"
+
+English: What is the drugID of aspirin
+
+SPARQL (chatgpt 4):
+
+
+
+## Formatting
 
 This document use Markdown and you can look at [this tutorial](https://www.markdowntutorial.com/).
 
@@ -112,3 +193,23 @@ Possible CiTO typing annotation include:
 ...
 
 ## References
+
+<!-- the blow should be inline OR in the BiBTeX -->
+
+@article{Wishart2017,
+  author = {Wishart, D. S. and Feunang, Y. D. and Guo, A. C. and Lo, E. J. and Marcu, A. and Grant, J. R. and Sajed, T. and Johnson, D. and Li, C. and Sayeeda, Z. and Assempour, N. and Iynkkaran, I. and Liu, Y. and Maciejewski, A. and Gale, N. and Wilson, A. and Chin, L. and Cummings, R. and Le, D. and Pon, A. and Knox, C. and Wilson, M.},
+  title = {DrugBank 5.0: a major update to the DrugBank database for 2018},
+  journal = {Nucleic Acids Res},
+  year = {2017},
+  volume = {Nov 8},
+  doi = {10.1093/nar/gkx1037}
+}
+
+
+https://github.com/vasugr/Natural-Language-To-SPARQL
+https://github.com/sebferre/sparklis
+https://github.com/machinalis/quepy
+https://github.com/xiaoyuin/tntspa
+https://chat.openai.com
+
+
