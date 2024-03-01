@@ -28,6 +28,15 @@ authors:
   - name: Ana Claudia Sima
     orchid: 0000-0003-3213-4495
     affiliation: 5
+  - name: Yasunori Yamamoto
+    orchid: 0000-0002-6943-6887
+    affiliation: 6
+  - name: Tarcisio Mendes de Farias
+    orchid: 0000-0002-3175-5372
+    affiliation: 7
+  - name: Julio C. Rangel
+    orchid: 0000-0001-8132-6341
+    affiliation: 8
 
 affiliations:
   - name: Micelio BV
@@ -40,6 +49,11 @@ affiliations:
     index: 4
   - name: SIB Swiss Institute of Bioinformatics 
     index: 5
+  - name: Database Center for Life Science
+    index: 6
+  - name: Data Knowledge Organization Unit, RIKEN 
+    index: 8
+    
 
 date: 29 February 2024
 cito-bibliography: paper.bib
@@ -58,7 +72,7 @@ authors_short: Andra Waagmeester \emph{et al.}
 
 # Introduction
 
-As part of the BioHackathon SWAT4LSHC 2024, we here report on the biohackathon SWAT4HCLS topic AI prompt engineering for SPARQL. During the introductions we noticed that there is a possible overlap between this project and the other project Beyond the VoID. 
+As part of the BioHackathon SWAT4HCLS 2024, we here report on the topic AI prompt engineering for SPARQL. During the introductions we noticed that there is a possible overlap between this project and the other project Beyond the VoID. 
 
 ## Overview of Related work / projects
 
@@ -66,7 +80,7 @@ As part of the BioHackathon SWAT4LSHC 2024, we here report on the biohackathon S
 
 <!-- discuss with Marvin -->
  
- Involved: Jerven (code fixes), Egon testing, Marvin (WP SPARQL endpoint), Tooba ...
+ Involved: Jerven (code fixes), Egon testing, Marvin (WP SPARQL endpoint), Tooba testing ...
 
 
 * things found
@@ -78,7 +92,154 @@ As part of the BioHackathon SWAT4LSHC 2024, we here report on the biohackathon S
         * also ontologies in separate graphs? 
             * Why? we migt be intereted in the usage of the ontologies
     * license? CCO for WikiPathways, but how to communicate the license for each dataset?
-    * 
+    *  
+    * running the SPARQL queries to check VoID statistics 
+
+### WikiPathways FDP use case
+
+* Fixed mime type of FDP Turtle files (Egon, Eric)
+* Tested WikiPathways FDP with Mark's tool
+
+TODO:
+
+* add Service Description
+* figure who to communicate which diseases are found in WikiPathways
+    * this is the connection to the VoID statistics work in Project 8
+
+### VoID support in Comunica
+
+The following shows the performance results of a prototypical implementation of VoID-based cardinality estimation
+Cardinality estimation using VoID is done based on the heuristics of "Hagedorn, Stefan, et al. "Resource Planning for SPARQL Query Execution on Data Sharing Platforms." COLD 1264 (2014)".
+
+For endpoints not exposing VoID metadata, Comunica falls back to sending COUNT queries.
+
+#### Query 15
+
+Sources:
+
+- https://lindas.admin.ch/query (without void)
+- https://sparql.rhea-db.org/sparql (with void)
+
+Query:
+```sparql
+PREFIX schema: <http://schema.org/>
+SELECT * WHERE {
+
+?substance a schema:DefinedTerm ;
+    schema:identifier ?identifier ;
+    schema:inDefinedTermSet <https://ld.admin.ch/cube/dimension/el01> .
+
+?compound <http://rdf.rhea-db.org/formula> ?identifier ;
+    <http://rdf.rhea-db.org/name> ?name ;
+    <http://rdf.rhea-db.org/accession> ?accession .
+}
+```
+
+With void:
+```
+Result,Delay (ms),HTTP requests
+1,162.69260597229004,14
+2,162.85465812683105,14
+3,212.3646821975708,17
+4,378.3809337615967,20
+5,378.5601854324341,20
+6,420.2927780151367,23
+7,465.06996726989746,26
+8,465.21367835998535,26
+9,507.01233673095703,29
+10,599.0587310791016,32
+11,637.3339443206787,35
+TOTAL,639.911449432373,35
+```
+
+
+
+```
+Without void:
+Result,Delay (ms),HTTP requests
+1,159.31932067871094,20
+2,159.54065895080566,20
+3,600.7964477539062,23
+4,647.9744453430176,26
+5,648.5275049209595,26
+6,807.2107524871826,29
+7,850.3266448974609,32
+8,851.1076250076294,32
+9,1003.3682670593262,35
+10,1041.3201503753662,38
+11,1076.443021774292,41
+TOTAL,1079.3609952926636,41
+```
+
+#### Query uniprot40
+
+Network or endpoint too unstable (requests are dropped)
+
+```sparql
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rh: <http://rdf.rhea-db.org/>
+PREFIX up: <http://purl.uniprot.org/core/>
+PREFIX CHEBI: <http://purl.obolibrary.org/obo/CHEBI_>
+PREFIX taxon: <http://purl.uniprot.org/taxonomy/>
+
+SELECT DISTINCT
+  ?protein
+  ?chemblEntry
+WHERE {
+  SERVICE <https://sparql.rhea-db.org/sparql> {
+    ?rhea rdfs:subClassOf rh:Reaction ;
+      rh:side/rh:contains/rh:compound/rh:chebi/rdfs:subClassOf+ CHEBI:26739 .
+  }
+  ?ca up:catalyzedReaction ?rhea .
+  ?protein up:annotation/up:catalyticActivity ?ca ;
+    up:organism taxon:9606 ;
+    rdfs:seeAlso ?chemblEntry .
+  ?chemblEntry up:database <http://purl.uniprot.org/database/ChEMBL> .
+}
+```
+
+#### Query uniprot38
+
+Fails due to an endpoint producing a syntax error in SPARQL results at some point during execution.
+
+```sparql
+PREFIX uniprotkb: <http://purl.uniprot.org/uniprot/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
+PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX ps: <http://www.wikidata.org/prop/statement/>
+
+SELECT
+	?protein
+	?begin
+	?end
+	?chromosome
+	?assembly
+WHERE {
+    {
+        BIND(uniprotkb:P05067 AS ?proteinIRI)
+        BIND (SUBSTR(STR(?proteinIRI), STRLEN(STR(uniprotkb:))+1) AS ?protein)
+    }
+    #SERVICE <https://query.wikidata.org/sparql> {
+        ?wp wdt:P352 ?protein ;
+            wdt:P702 ?wg .
+        ?wg p:P644   ?wgss .
+        ?wgss ps:P644        ?begin ;
+          pq:P1057/wdt:P1813 ?chromosome ;
+          pq:P659/rdfs:label ?assembly .
+        ?wg p:P645 ?wgse .
+        ?wgse ps:P645        ?end ;
+          pq:P1057/wdt:P1813 ?chromosome ;
+          pq:P659/rdfs:label ?assembly .
+        FILTER(lang(?assembly) = "en")
+  #}
+}
+```
+
+## VoID auto-generator
+Involved: Yasunori, Tarcisio
+
+We started the evaluation of two VoID metadata generators, namely, void-generator and Triple Data Profiler. First, we evaluate if the generated metadata are complementary or the same. We noticed that they are indeed complementary to each other. Secondly, we aimed at combining their results to produce a more complete VoID-based description of a given RDF data source. We found out that merging both tools' VoID results is not straightforward. We identified that the generated output by the tools are structured in different ways even though both rely on VoID.
 
 ## ChEMBL VoID use case
 
@@ -86,22 +247,66 @@ Involved: Ammar
 
 Generating VoID file for the ChEMBL SPARQL endpoint.
 
+Results will be made available in this [GitHub Repo](https://github.com/ammar257ammar/SWAT4HCLS-BioHackathon-void)
 
+
+## VoID testing on my local GraphDB ([ENPKG](https://enpkg.commons-lab.org)+ more stuff)
+
+Many queries with are MALFORMED QUERY
+
+
+GraphDB freezed after 66444 queries. Last VoID messages:
+
+```
+processing request to {}->http://localhost:7200: The target server failed to respond
+[pool-1-thread-3] INFO org.apache.http.impl.execchain.RetryExec - Retrying request to {}->http://localhost:7200
+[pool-1-thread-2] WARN org.eclipse.rdf4j.http.client.SPARQLProtocolSession - Server reports problem: null (enable debug logging for full details)
+[pool-1-thread-3] WARN org.eclipse.rdf4j.http.client.SPARQLProtocolSession - Server reports problem: null (enable debug logging for full details)
+[pool-1-thread-2] WARN org.eclipse.rdf4j.http.client.SPARQLProtocolSession - Server reports problem: null (enable debug logging for full details)
+[pool-1-thread-1] WARN org.eclipse.rdf4j.http.client.SharedHttpClientSessionManager$RetryHandlerStale - Closing stale connection
+[pool-1-thread-1] INFO org.apache.http.impl.execchain.RetryExec - I/O exception (org.apache.http.NoHttpResponseException) caught when processing request to {}->http://localhost:7200: The target server failed to respond
+[pool-1-thread-1] INFO org.apache.http.impl.execchain.RetryExec - Retrying request to {}->http://localhost:7200
+[pool-1-thread-2] WARN org.eclipse.rdf4j.http.client.SPARQLProtocolSession - Server reports problem: null (enable debug logging for full details)
+[pool-1-thread-3] WARN org.eclipse.rdf4j.http.client.SPARQLProtocolSession - Server reports problem: null (enable debug logging for full details)
+```
+
+and in the GraphDB main log:
+
+```[ERROR] 2024-02-29 16:15:31,116 [http-nio-7200-exec-8 | o.a.c.c.C.[.[.[.[openrdf-http-server]] Servlet.service() for servlet [openrdf-http-server] in context with path [] threw exception [Handler processing failed; nested exception is java.lang.OutOfMemoryError: Java heap space] with root cause
+java.lang.OutOfMemoryError: Java heap space
+```
+
+I am ready to try it again after the next round of bugs fix :-))
+
+
+
+## Validating a given SPARQL query against the VoID description of the target KG
+
+The idea is to eliminate errors e.g. due to hallucinations in the generated SPARQL queries, by cross-checking the URIs in the query against the available URIs in the VoID description.
+
+
+
+# AI Prompt engineering for SPARQL
 
 ## Setting up local virtuoso triple store
 
-We installed virtuoso and loaded the drungbank database into the triple store. We already had prepared a .nq version of Drugbank, which had been created from previously [@citesAsRelated:Wishart2017].
+We installed virtuoso and loaded the drungbank database into the triple store. We already had prepared a .nq version of Drugbank, which had been created from a xml file downloaded on 4th of January 2023 from Drugbank (for academic use only) [@citesAsRelated:Wishart2017].
+That file had been translated into nquads using scripts from Bio2RDF.
+
+'php runparser.php parser=drugbank download=false files=all indir=<path1> outdir=<path1> registry_dir=<path3>'
+    
+[citesAsSourceDocument https://github.com/bio2rdf/bio2rdf-scripts]    
 
 With the following steps:
 
 Running the docker
 
 - configuring the virtuoso.ini:
-   ```DirsAllowed              = ., ../vad, /usr/share/proj, /data``
+   ```DirsAllowed              = ., ../vad, /usr/share/proj, /data```
 
 - copy the drugbank.nq to local /data volume
 
-### starting the virtuoso cli client:
+### Starting the Virtuoso client:
 
 We used the isql console to load some data via the bulk loader:
   ```isql 1111 dba dba```
@@ -123,12 +328,40 @@ The drungbank graph is now locally available through the browser at localhost:88
 
 ### Getting simple drug information
  
-We chose Aspirin as a sample drug and ask for the "drugID"
+We chose Aspirin as a sample drug and ask for the "DrugID"
 
 
+#### A remark to the reproducibility of the LLM queries
 
-English: What is the drugID of aspirin
+Prompting LLM usually send also the context in each query.
+The AI improves its answers based on the context.
+To reproduce a certain result one would require to reproduce the whole history of prompts of a session. 
+We descided to **first find prompts leading to reasonable results**
+and then reset the session and generate an optimised series of prompts to come to at least somewhat reproducable results, starting from scratch.
 
+    
+### Retrieving some basic information
+#### The easy way: 
+    
+ChatGPT-prompt: What is the DrugbankID of Aspirin?
+
+ChatGPT 3.5 reply:
+
+```
+The DrugBank ID for Aspirin is DB00945.
+```    
+    
+    
+ChatGPT 4.0 reply:
+
+```
+The DrugBank ID of Aspirin is DB00945 (citation: https://www.drugs.com/ingredient/aspirin.html).
+```
+
+In this case the result was correct in both cases, no halucination and in GPT4 even a source for the valid result.
+
+#### Requesting the URI of Aspirin via SPARQL:     
+    
 ChatGPT-prompt:
 
 ```
@@ -138,6 +371,15 @@ Generate a SPARQL query to retrieve the DrugID of aspirin
 
 Use "aspirin" as the label to find right URI
 ```
+
+
+Expectation:
+We expect a releatively basic SPARQL query in the form of 
+
+SELECT ?drug
+WHERE {
+  ?drug rdfs:label "Aspirin".
+}
 
 
 Respones
@@ -172,105 +414,155 @@ WHERE {
 }
 ```
 
-The prefix rdfs is correct, the prefix `http://drugbank.ca#` is invented, but fits to the website of drugbank. ChatGPT in version 4 tells us, that we need to specify the prefix, while ChatGPT verseion 3.5 did not warn about that.
+The prefix rdfs is correct, the prefix `http://drugbank.ca#` is invented, but fits to the website of drugbank. ChatGPT in version 4 tells us, that we need to specify the prefix, while ChatGPT version 3.5 did not warn about that.
 
 
 
-
+#### Adding more details to the prompt
 
 ChatGPT-prompt:
 
 ```
 We are using a local SPARQL endpoint of drugbank database. 
 The prefix of the graph is should be: 
-dbank <http://bio2rdf.org/drugbank_resource:bio2rdf.dataset.drugbank.R5>
-Generate a SPARQL query to retrieve the DrugID of aspirin
-Use "aspirin" as the label to find right URI
+dbank: http://bio2rdf.org/drugbank_resource
+It is stored in a graph called <http://bio2rdf.org/drugbank_resource:bio2rdf.dataset.drugbank.R5>
+To explore the structure of the database, a good start would be to look for a known drug like aspirin.
+Generate a SPARQL query to retrieve the URI of Aspirin.
+Use "aspirin" as the label to find right URI.
+Do not assume that it has the rdf:label predicate but an english language tag. 
 ```
 
+    
+Expectation:
+
+PREFIX dbank: <http://bio2rdf.org/drugbank_resource:>
+SELECT DISTINCT ?drugURI
+WHERE {
+  GRAPH <http://bio2rdf.org/drugbank_resource:bio2rdf.dataset.drugbank.R5> {
+    ?drugURI ?predicate "Aspirin"@en.
+  }
+}
+
+ChatGPT 3.5 reply:
+
+```
+PREFIX dbank: <http://bio2rdf.org/drugbank_resource>
+
+SELECT ?drug_uri
+WHERE {
+  GRAPH <http://bio2rdf.org/drugbank_resource:bio2rdf.dataset.drugbank.R5> {
+    ?drug_uri ?p ?o .
+    FILTER (str(?o) = "aspirin"@en)
+  }
+}
+
+
+```
+    
+The result is almost correct: only the capitalisation and the language tag was wrong.
+
+How it should be:
+    
+```
+PREFIX dbank: <http://bio2rdf.org/drugbank_resource>
+
+SELECT ?drug_uri
+WHERE {
+  GRAPH <http://bio2rdf.org/drugbank_resource:bio2rdf.dataset.drugbank.R5> {
+    ?drug_uri ?p ?o .
+    FILTER (str(?o) = "Aspirin")
+  }
+}
+
+
+```
+    
+Running the corrected query, resulted in two hits :)
+
+
+ChatGPT 4.0 reply:
+
+```
+Given the requirements and the prefix for the DrugBank database, a SPARQL query to find the URI of Aspirin, where "aspirin" is the label with an English language tag, would look like this:
+
+PREFIX dbank: <http://bio2rdf.org/drugbank_resource>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?aspirinURI
+WHERE {
+  GRAPH <http://bio2rdf.org/drugbank_resource:bio2rdf.dataset.drugbank.R5> {
+    ?aspirinURI rdfs:label "aspirin"@en.
+  }
+}
+    
+In this query:
+
+The PREFIX lines define short names for the URIs that will be used in the query. dbank is set as the prefix for DrugBank resources, and rdfs is the prefix for the RDF Schema vocabulary, which includes the label property.
+The SELECT line specifies that we want to retrieve the URI of Aspirin, which we're calling ?aspirinURI in the query.
+The WHERE clause specifies the pattern to match in the data. We're looking for a resource (?aspirinURI) within the specified graph (<http://bio2rdf.org/drugbank_resource:bio2rdf.dataset.drugbank.R5>) that has an English language label (rdfs:label "aspirin"@en).
+This query assumes that the label for Aspirin is exactly "aspirin" and tagged with @en for English. Depending on the specifics of the data, you might need to adjust the query if, for example, the label includes additional information or uses a slightly different form (e.g., capitalization).
+```
+    
+The query gave no results due to the spelling "aspirin"@en instead of "Aspirin"@en. That has been described as one of the potential weaknesses.
+    
+
+#### What we actually found out:
+
+```
+PREFIX dbank: <http://bio2rdf.org/drugbank_resource:>
+SELECT DISTINCT ?drugURI ?predicate ?s
+WHERE {
+  GRAPH <http://bio2rdf.org/drugbank_resource:bio2rdf.dataset.drugbank.R5> {
+    ?drugURI ?predicate "Aspirin"@en.
+    ?s ?p ?drugURI.
+  }
+}
+```
+    
+The DrugID of Aspirin is actually not the same URI that is connected to the label "Aspirin"@en directly, but indirectly via "http://bio2rdf.org/drugbank_vocabulary:synonym" so we actually need 2 hops to find the DrugID from the URI.
+This is unexpected and not solvable without presenting ChatGPT the graph structure using prior knowledge or additional information.
+
+    
+    
+
+    
 
 
 
-## Validating a given SPARQL query against the VoID description of the target KG
-
-The idea is to eliminate errors e.g. due to hallucinations in the SPARQL queries generated by cross-checking the URIs in the query against the available URIs in the VoID description.
-
-
-## Formatting
-
-This document use Markdown and you can look at [this tutorial](https://www.markdowntutorial.com/).
-
-## Subsection level 2
-
-Please keep sections to a maximum of only two levels.
-
-## Tables and figures
-
-Tables can be added in the following way, though alternatives are possible:
-
-Table: Note that table caption is automatically numbered and should be
-given before the table itself.
-
-| Header 1 | Header 2 |
-| -------- | -------- |
-| item 1 | item 2 |
-| item 3 | item 4 |
-
-A figure is added with:
-
-![Caption for BioHackrXiv logo figure](./biohackrxiv.png)
-
-# Other main section on your manuscript level 1
-
-Lists can be added with:
-
-1. Item 1
-2. Item 2
-
-# Citation Typing Ontology annotation
-
-You can use [CiTO](http://purl.org/spar/cito/2018-02-12) annotations, as explained in [this BioHackathon Europe 2021 write up](https://raw.githubusercontent.com/biohackrxiv/bhxiv-metadata/main/doc/elixir_biohackathon2021/paper.md) and [this CiTO Pilot](https://www.biomedcentral.com/collections/cito).
-Using this template, you can cite an article and indicate _why_ you cite that article, for instance DisGeNET-RDF [@citesAsAuthority:Queralt2016].
-
-The syntax in Markdown is as follows: a single intention annotation looks like
-`[@usesMethodIn:Krewinkel2017]`; two or more intentions are separated
-with colons, like `[@extends:discusses:Nielsen2017Scholia]`. When you cite two
-different articles, you use this syntax: `[@citesAsDataSource:Ammar2022ETL; @citesAsDataSource:Arend2022BioHackEU22]`.
-
-Possible CiTO typing annotation include:
-
-* citesAsDataSource: when you point the reader to a source of data which may explain a claim
-* usesDataFrom: when you reuse somehow (and elaborate on) the data in the cited entity
-* usesMethodIn
-* citesAsAuthority
-* citesAsEvidence
-* citesAsPotentialSolution
-* citesAsRecommendedReading
-* citesAsRelated
-* citesAsSourceDocument
-* citesForInformation
-* confirms
-* documents
-* providesDataFor
-* obtainsSupportFrom
-* discusses
-* extends
-* agreesWith
-* disagreesWith
-* updates
-* citation: generic citation
 
 
 # Results
 
 
 # Discussion
+    
+# Future Work
+    
+## Refining the query with by generating the Drugbank graph Schema
+    
+We are investigating the Drugbank represented as Linked Data. Therefore, we are interested in building the ontology/schema to see the structure of the data. Therefore we used the following SPARQL query that we borrowed from [Bio2RDF_query_Dumontier](https://www.w3.org/TR/hcls-dataset/#s6_6) :
+
+```
+SELECT (COUNT(DISTINCT ?s) AS ?scount) ?stype ?p ?otype  (COUNT(DISTINCT ?o) AS ?ocount)  
+{ 
+ ?s ?p ?o . 
+ ?s a ?stype .
+ ?o a ?otype .
+} GROUP BY ?p ?stype ?otype
+```
+
+This query shows the structure of different types, but lacks of predicates and literals.
+    
+## Further queries to test
+    
+Augment the catalog of queries on DisGenet, using more complex queries.
 
 ...
 
 ## Acknowledgements
 
-...
+Michel Dumontier, Alberto Labarga
 
 ## References
 
@@ -282,5 +574,5 @@ https://github.com/sebferre/sparklis
 https://github.com/machinalis/quepy
 https://github.com/xiaoyuin/tntspa
 https://chat.openai.com
-
+https://github.com/micheldumontier/sparql-langchain/
 
