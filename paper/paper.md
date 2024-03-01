@@ -79,7 +79,7 @@ As part of the BioHackathon SWAT4HCLS 2024, we here report on the topic AI promp
 ## WikiPathways VoID use case
 
 <!-- discuss with Marvin -->
- 
+
  Involved: Jerven (code fixes), Egon testing, Marvin (WP SPARQL endpoint), Tooba testing ...
 
 
@@ -245,9 +245,71 @@ We started the evaluation of two VoID metadata generators, namely, void-generato
 
 Involved: Ammar 
 
-Generating VoID file for the ChEMBL SPARQL endpoint.
+ChEMBL [@cites:10.1093/nar/gkr777], a prominent bioactivity database, plays a crucial role in drug discovery and chemical biology research. It houses vast amounts of data relating to the interactions between small molecules and their biological targets. Leveraging Semantic Web technologies, ChEMBL provides a SPARQL endpoint, enabling users to query its data using the RDF data model [@usesDataFrom:10.1093/bioinformatics/btt765].
 
-Results will be made available in this [GitHub Repo](https://github.com/ammar257ammar/SWAT4HCLS-BioHackathon-void)
+On the other hand, VoID (Vocabulary of Interlinked Datasets) [@cites:Zhao:11:DLD] serves as a metadata standard for describing RDF datasets. It facilitates the discovery and integration of linked data by providing essential information about datasets, such as their structure, statistics, and relationships with other datasets. By generating a VoID file for the ChEMBL SPARQL endpoint, users gain insights into the dataset's characteristics, enabling better utilization and integration with other linked datasets.
+
+The ChEMBL Core Ontology (CCO) encapsulates the essential concepts and relationships within the ChEMBL dataset in an RDF-compatible format. It defines classes and properties to represent entities such as compounds, targets, assays, and activities, fostering interoperability and standardization in bioactivity data representation. By querying the ChEMBL SPARQL endpoint for predicates within the CCO, researchers can uncover significant patterns and relationships present in the dataset, aiding in various analyses and investigations, such as target identification, compound profiling, and drug repurposing efforts.
+
+During the [SWAT4HCLS](https://swat4hcls.org) BioHackathon 2024, a task was carried out aiming at creating a VoID file for the ChEMBL SPARQL endpoint. That was facilitated through the utilization of the [void-generator](https://github.com/JervenBolleman/void-generator) tool. The outcomes of this process have been shared within this [GitHub Repository](https://github.com/ammar257ammar/SWAT4HCLS-BioHackathon-void). Following this, the generated [void.ttl](https://github.com/ammar257ammar/SWAT4HCLS-BioHackathon-void/blob/main/void.ttl) file along with the [cco.ttl](https://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBL-RDF/latest/cco.ttl.gz) ontology file were imported into a triple store (GraphDB), and thorough exploration was performed via SPARQL. To delve deeper into the usage of the ChEMBL Core Ontology (CCO) properties, a specific SPARQL query (shown below) was formulated to extract the top 20 predicates based on their frequency of occurrence within the dataset, alongside the enumeration of distinct subjects and objects associated with them.
+
+```sparql
+PREFIX void: <http://rdfs.org/ns/void#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+select ?propertyDescription ?triples ?distinctSubjects ?distinctObject where { 
+
+    ?s void:property ?property.
+    ?property rdfs:label ?propertyLabel.
+    
+    ?s void:triples ?triples .
+    ?s void:distinctObjects ?distinctObject.
+    ?s void:distinctSubjects ?distinctSubjects.
+    
+    BIND(CONCAT(
+            REPLACE(
+                STR(?property),
+                "http://rdf.ebi.ac.uk/terms/chembl#", 
+                "chembl:"), 
+            " (", 
+            ?propertyLabel, 
+            ")") 
+        AS ?propertyDescription)
+    
+} order by DESC(?triples)
+LIMIT 20
+```
+
+
+
+Below is the resulting table of the top 20 predicates based on their frequency of occurrence within the ChEMBL RDF dataset.
+
+
+
+| Property Description                                         | # of triples | # of Distinct Subjects | # of Distinct Object |
+| ------------------------------------------------------------ | ------------ | ---------------------- | -------------------- |
+| chembl:hasActivity (ChEMBL Activity Association)             | 61004052     | 3999701                | 20334684             |
+| chembl:hasAssay (ChEMBL Assay Association)                   | 25166472     | 20438130               | 1610596              |
+| chembl:hasDocument (ChEMBL Document Association)             | 25023633     | 24257792               | 88630                |
+| chembl:chemblId (The ChEMBL ID for a given entity)           | 24527418     | 24527418               | 24527418             |
+| chembl:hasMolecule (ChEMBL Molecule Association)             | 23384062     | 20482807               | 2312287              |
+| chembl:standardType (ChEMBL Activity Entity Standard Type)   | 20334684     | 20334684               | 6379                 |
+| chembl:type (ChEMBL Activity Entity Type)                    | 20334684     | 20334684               | 6630                 |
+| chembl:standardValue (ChEMBL Activity Entity Standard Value) | 18818643     | 18818643               | 306321               |
+| chembl:value (ChEMBL Activity Entity Value)                  | 18818643     | 18818643               | 1325941              |
+| chembl:standardUnits (ChEMBL Activity Entity Standard Units) | 18077058     | 18077058               | 2567                 |
+| chembl:hasUnitOnto (Unit Ontology Link)                      | 17622648     | 17622648               | 43                   |
+| chembl:hasQUDT (QUDT Ontology Link)                          | 17468137     | 17468137               | 25                   |
+| chembl:units (ChEMBL Activity Entity Units)                  | 15078494     | 15078494               | 2794                 |
+| chembl:relation (ChEMBL Activity Entity Relation)            | 13040294     | 13040294               | 24                   |
+| chembl:standardRelation (ChEMBL Activity Entity Standard Relation) | 13037254     | 13037254               | 8                    |
+| chembl:activityComment (ChEMBL Activity Entity Comment)      | 10135818     | 10135818               | 209889               |
+| chembl:moleculeXref (ChEMBL Molecule Cross Reference Property) | 6447112      | 2234469                | 6447073              |
+| chembl:pChembl (ChEMBL Activity pChembl Value)               | 4037920      | 4037920                | 1087                 |
+| chembl:taxonomy (ChEMBL Entity Taxonomy)                     | 2937114      | 1468557                | 8254                 |
+| chembl:substanceType (ChEMBL Substance Entity Type)          | 2399743      | 2399743                | 9                    |
+
+
 
 
 ## VoID testing on my local GraphDB ([ENPKG](https://enpkg.commons-lab.org)+ more stuff)
@@ -327,7 +389,7 @@ The drungbank graph is now locally available through the browser at localhost:88
 ## Sample Queries
 
 ### Getting simple drug information
- 
+
 We chose Aspirin as a sample drug and ask for the "DrugID"
 
 
@@ -339,19 +401,19 @@ To reproduce a certain result one would require to reproduce the whole history o
 We descided to **first find prompts leading to reasonable results**
 and then reset the session and generate an optimised series of prompts to come to at least somewhat reproducable results, starting from scratch.
 
-    
+
 ### Retrieving some basic information
 #### The easy way: 
-    
+
 ChatGPT-prompt: What is the DrugbankID of Aspirin?
 
 ChatGPT 3.5 reply:
 
 ```
 The DrugBank ID for Aspirin is DB00945.
-```    
-    
-    
+```
+
+
 ChatGPT 4.0 reply:
 
 ```
@@ -361,7 +423,7 @@ The DrugBank ID of Aspirin is DB00945 (citation: https://www.drugs.com/ingredien
 In this case the result was correct in both cases, no halucination and in GPT4 even a source for the valid result.
 
 #### Requesting the URI of Aspirin via SPARQL:     
-    
+
 ChatGPT-prompt:
 
 ```
@@ -433,7 +495,7 @@ Use "aspirin" as the label to find right URI.
 Do not assume that it has the rdf:label predicate but an english language tag. 
 ```
 
-    
+
 Expectation:
 
 PREFIX dbank: <http://bio2rdf.org/drugbank_resource:>
@@ -459,7 +521,7 @@ WHERE {
 
 
 ```
-    
+
 The result is almost correct: only the capitalisation and the language tag was wrong.
 
 How it should be:
@@ -477,7 +539,7 @@ WHERE {
 
 
 ```
-    
+
 Running the corrected query, resulted in two hits :)
 
 
@@ -503,7 +565,7 @@ The SELECT line specifies that we want to retrieve the URI of Aspirin, which we'
 The WHERE clause specifies the pattern to match in the data. We're looking for a resource (?aspirinURI) within the specified graph (<http://bio2rdf.org/drugbank_resource:bio2rdf.dataset.drugbank.R5>) that has an English language label (rdfs:label "aspirin"@en).
 This query assumes that the label for Aspirin is exactly "aspirin" and tagged with @en for English. Depending on the specifics of the data, you might need to adjust the query if, for example, the label includes additional information or uses a slightly different form (e.g., capitalization).
 ```
-    
+
 The query gave no results due to the spelling "aspirin"@en instead of "Aspirin"@en. That has been described as one of the potential weaknesses.
     
 
@@ -519,14 +581,14 @@ WHERE {
   }
 }
 ```
-    
+
 The DrugID of Aspirin is actually not the same URI that is connected to the label "Aspirin"@en directly, but indirectly via "http://bio2rdf.org/drugbank_vocabulary:synonym" so we actually need 2 hops to find the DrugID from the URI.
 This is unexpected and not solvable without presenting ChatGPT the graph structure using prior knowledge or additional information.
 
-    
-    
 
-    
+​    
+
+​    
 
 
 
@@ -536,11 +598,11 @@ This is unexpected and not solvable without presenting ChatGPT the graph structu
 
 
 # Discussion
-    
+
 # Future Work
-    
+
 ## Refining the query with by generating the Drugbank graph Schema
-    
+
 We are investigating the Drugbank represented as Linked Data. Therefore, we are interested in building the ontology/schema to see the structure of the data. Therefore we used the following SPARQL query that we borrowed from [Bio2RDF_query_Dumontier](https://www.w3.org/TR/hcls-dataset/#s6_6) :
 
 ```
@@ -555,7 +617,7 @@ SELECT (COUNT(DISTINCT ?s) AS ?scount) ?stype ?p ?otype  (COUNT(DISTINCT ?o) AS 
 This query shows the structure of different types, but lacks of predicates and literals.
     
 ## Further queries to test
-    
+
 Augment the catalog of queries on DisGenet, using more complex queries.
 
 ...
