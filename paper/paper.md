@@ -312,7 +312,9 @@ Below is the resulting table of the top 20 predicates based on their frequency o
 
 
 
-## VoID testing on my local GraphDB ([ENPKG](https://enpkg.commons-lab.org)+ more stuff)
+## VoID testing on my local GraphDB
+
+[ENPKG](https://enpkg.commons-lab.org)+ more stuff
 
 Many queries with are MALFORMED QUERY
 
