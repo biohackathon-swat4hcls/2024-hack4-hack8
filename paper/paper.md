@@ -241,7 +241,7 @@ Involved: Yasunori, Tarcisio
 
 We started the evaluation of two VoID metadata generators, namely, void-generator and Triple Data Profiler. First, we evaluate if the generated metadata are complementary or the same. We noticed that they are indeed complementary to each other. Secondly, we aimed at combining their results to produce a more complete VoID-based description of a given RDF data source. We found out that merging both tools' VoID results is not straightforward. We identified that the generated output by the tools are structured in different ways even though both rely on VoID.
 
-## ChEMBL VoID use case
+## ChEMBL use case for the VoID auto-generator 
 
 Involved: Ammar 
 
