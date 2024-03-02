@@ -272,7 +272,8 @@ processing request to {}->http://localhost:7200: The target server failed to res
 
 and in the GraphDB main log:
 
-```[ERROR] 2024-02-29 16:15:31,116 [http-nio-7200-exec-8 | o.a.c.c.C.[.[.[.[openrdf-http-server]] Servlet.service() for servlet [openrdf-http-server] in context with path [] threw exception [Handler processing failed; nested exception is java.lang.OutOfMemoryError: Java heap space] with root cause
+```
+[ERROR] 2024-02-29 16:15:31,116 [http-nio-7200-exec-8 | o.a.c.c.C.[.[.[.[openrdf-http-server]] Servlet.service() for servlet [openrdf-http-server] in context with path [] threw exception [Handler processing failed; nested exception is java.lang.OutOfMemoryError: Java heap space] with root cause
 java.lang.OutOfMemoryError: Java heap space
 ```
 
@@ -295,7 +296,7 @@ That file had been translated into nquads using scripts from Bio2RDF.
 
 'php runparser.php parser=drugbank download=false files=all indir=<path1> outdir=<path1> registry_dir=<path3>'
     
-[citesAsSourceDocument https://github.com/bio2rdf/bio2rdf-scripts]    
+[@citesAsSourceDocument:bio2rdf-scripts]
 
 With the following steps:
 
@@ -433,9 +434,9 @@ Use "aspirin" as the label to find right URI.
 Do not assume that it has the rdf:label predicate but an english language tag. 
 ```
 
-    
 Expectation:
 
+```
 PREFIX dbank: <http://bio2rdf.org/drugbank_resource:>
 SELECT DISTINCT ?drugURI
 WHERE {
@@ -443,6 +444,7 @@ WHERE {
     ?drugURI ?predicate "Aspirin"@en.
   }
 }
+```
 
 ChatGPT 3.5 reply:
 
@@ -456,8 +458,6 @@ WHERE {
     FILTER (str(?o) = "aspirin"@en)
   }
 }
-
-
 ```
     
 The result is almost correct: only the capitalisation and the language tag was wrong.
@@ -474,8 +474,6 @@ WHERE {
     FILTER (str(?o) = "Aspirin")
   }
 }
-
-
 ```
     
 Running the corrected query, resulted in two hits :)
@@ -483,7 +481,6 @@ Running the corrected query, resulted in two hits :)
 
 ChatGPT 4.0 reply:
 
-```
 Given the requirements and the prefix for the DrugBank database, a SPARQL query to find the URI of Aspirin, where "aspirin" is the label with an English language tag, would look like this:
 
 PREFIX dbank: <http://bio2rdf.org/drugbank_resource>
@@ -502,7 +499,6 @@ The PREFIX lines define short names for the URIs that will be used in the query.
 The SELECT line specifies that we want to retrieve the URI of Aspirin, which we're calling ?aspirinURI in the query.
 The WHERE clause specifies the pattern to match in the data. We're looking for a resource (?aspirinURI) within the specified graph (<http://bio2rdf.org/drugbank_resource:bio2rdf.dataset.drugbank.R5>) that has an English language label (rdfs:label "aspirin"@en).
 This query assumes that the label for Aspirin is exactly "aspirin" and tagged with @en for English. Depending on the specifics of the data, you might need to adjust the query if, for example, the label includes additional information or uses a slightly different form (e.g., capitalization).
-```
     
 The query gave no results due to the spelling "aspirin"@en instead of "Aspirin"@en. That has been described as one of the potential weaknesses.
     
