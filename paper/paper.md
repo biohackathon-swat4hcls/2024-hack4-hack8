@@ -51,12 +51,13 @@ affiliations:
     index: 5
   - name: Database Center for Life Science
     index: 6
-  - name: ?
+  - name: FIXME
     index: 7
   - name: Data Knowledge Organization Unit, RIKEN 
     index: 8
 date: 29 February 2024
 cito-bibliography: paper.bib
+
 event: SWAT4HCLS24
 biohackathon_name: "BioHackathon SWAT4HCLS 2024"
 biohackathon_url:   "https://www.swat4ls.org/workshops/leiden2024/hackathon/"
