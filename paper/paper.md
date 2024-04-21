@@ -97,14 +97,25 @@ As part of the BioHackathon SWAT4HCLS 2024, we here report on the topic AI promp
 
 ### WikiPathways FDP use case
 
-* Fixed mime type of FDP Turtle files (Egon, Eric)
-* Tested WikiPathways FDP with Mark's tool
+The WikiPathways FAIR Data Point (FDP) was originally developed in 2017 [@citesAsEvidence:Slenter2018]. During (and around) the hackathon
+we updated the GitHub-hosted FDP. Last year this solution was setup as replacement of the original FDP which was based on dedicated
+software. However, the replacement needed further testing with the EJP-RD setup. Based on a script developed in 2022 by Rajaram Kaliyaperumal
+[@usesMethodIn:Kaliyaperumal2022], the GitHub repository pings the EJP-RD index of FAIR Data Points ([index.vp.ejprarediseases.org/](https://index.vp.ejprarediseases.org/)).
+The repository has a script to automate the update the FDP for new WikiPathways releases and it now includes information
+on the first two distributions. These are the archives for WPRDF and GPMLRDF as they can be found on the
+[data.wikipathways.org](https://data.wikipathways.org) download website.
 
-TODO:
+However, the solution had two shortcomings. First, the mime type returns as `Content-type` was not properly set, and second, we wanted
+to further explore enriching the FDP for use in EJP-RD. We updated the setup of the repository to have GitHub host the `TTL` files
+with the proper mime type. This required renaming the files from `index.html` to `index.tll`. The content of the files was adjusted
+accordingly to ensure the linked data nature was not broken. That is, the IRIs used by the various resources now end with `index.ttl`.
+We note that this leaks some implementation detail.
 
-* add Service Description
-* figure who to communicate which diseases are found in WikiPathways
-    * this is the connection to the VoID statistics work in Project 8
+For the second, we explored the use of the VoID statistics work in Project, as reported elsewhere in this report. We envision
+integrating the results of such an statistics analysis into the VoID header file for the RDF data and possible integrate some
+statistics into the FAIR data point too. Related to this, we observed an interest in adding a Service Description and the need
+to communicate more details about the content of the datasets, such as which diseases are covered by WikiPathways. This
+information can be extraced from the RDF, but it is yet unclear how these annotations need to be added to the FDP Turtle.
 
 ### VoID support in Comunica
 
