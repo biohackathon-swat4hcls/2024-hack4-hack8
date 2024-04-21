@@ -69,22 +69,16 @@ authors_short: Andra Waagmeester \emph{et al.}
 
 # Introduction
 
-As part of the BioHackathon SWAT4HCLS 2024, we here report on the topic AI prompt engineering for SPARQL. During the introductions we noticed that there is a possible overlap between this project and the other project Beyond the VoID. 
-
-## Overview of Related work / projects
+As part of the BioHackathon SWAT4HCLS 2024, we here report on the topic AI prompt engineering for SPARQL. During the introductions we noticed that there is a possible overlap between this project and the other project `Beyond the VoID`. 
 
 ## WikiPathways 
 
-WikiPathways is a database of biological pathways and an ELIXIR-NL service [@Martens2021;Slenter2018]. The project was involved
+WikiPathways is a database of biological pathways and an ELIXIR-NL service [@Martens2021; @Slenter2018]. The project was involved
 in two hackathon projects as explained in this section.
 
 ### The VoID statistics use case
 
-Involved:
-* Jerven (code fixes)
-* Egon (testing)
-* Tooba (testing)
-* Marvin (WP SPARQL endpoint)
+Involved: Jerven (code fixes), Egon (testing), Tooba (testing), Marvin (WP SPARQL endpoint)
 
 In this session we explored the VoID header file of WikiPathways [@Martens2021] for enrichment with statistics generated with the
 Jerven Bolleman's VoID statistics tool (XXXXX). The tool did not work out of the box and several code updates were written.
@@ -96,9 +90,7 @@ triple sotre, for example with the graph IRIs `http://rdf.wikipathways.org/wprdf
 
 ### WikiPathways FDP use case
 
-Involved:
-* Egon (development)
-* Eric (discussion)
+Involved: Egon (development), Eric (discussion)
 
 The WikiPathways FAIR Data Point (FDP) was originally developed in 2017 [@citesAsEvidence:Slenter2018]. During (and around) the hackathon
 we updated the GitHub-hosted FDP. Last year this solution was setup as replacement of the original FDP which was based on dedicated
@@ -120,7 +112,7 @@ statistics into the FAIR data point too. Related to this, we observed an interes
 to communicate more details about the content of the datasets, such as which diseases are covered by WikiPathways. This
 information can be extraced from the RDF, but it is yet unclear how these annotations need to be added to the FDP Turtle.
 
-### VoID support in Comunica
+## VoID support in Comunica
 
 The following shows the performance results of a prototypical implementation of VoID-based cardinality estimation
 Cardinality estimation using VoID is done based on the heuristics of "Hagedorn, Stefan, et al. "Resource Planning for SPARQL Query Execution on Data Sharing Platforms." COLD 1264 (2014)".
@@ -271,26 +263,26 @@ During the [SWAT4HCLS](https://swat4hcls.org) BioHackathon 2024, a task was carr
 PREFIX void: <http://rdfs.org/ns/void#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-select ?propertyDescription ?triples ?distinctSubjects ?distinctObject where { 
+SELECT ?propertyDescription ?triples ?distinctSubjects ?distinctObject
+WHERE { 
 
-    ?s void:property ?property.
-    ?property rdfs:label ?propertyLabel.
+  ?s void:property ?property.
+  ?property rdfs:label ?propertyLabel.
     
-    ?s void:triples ?triples .
-    ?s void:distinctObjects ?distinctObject.
-    ?s void:distinctSubjects ?distinctSubjects.
+  ?s void:triples ?triples .
+  ?s void:distinctObjects ?distinctObject.
+  ?s void:distinctSubjects ?distinctSubjects.
     
-    BIND(CONCAT(
-            REPLACE(
-                STR(?property),
-                "http://rdf.ebi.ac.uk/terms/chembl#", 
-                "chembl:"), 
-            " (", 
-            ?propertyLabel, 
-            ")") 
-        AS ?propertyDescription)
-    
-} order by DESC(?triples)
+  BIND(CONCAT(
+         REPLACE(
+           STR(?property),
+           "http://rdf.ebi.ac.uk/terms/chembl#", 
+           "chembl:"), 
+          " (", 
+          ?propertyLabel, 
+          ")"
+  ) AS ?propertyDescription) 
+} ORDER BY DESC(?triples)
 LIMIT 20
 ```
 
@@ -367,14 +359,10 @@ The idea is to eliminate errors e.g. due to hallucinations in the generated SPAR
 
 # AI Prompt engineering for SPARQL
 
-## Setting up local virtuoso triple store
+## Setting up local Virtuoso triple store
 
-We installed virtuoso and loaded the drungbank database into the triple store. We already had prepared a .nq version of Drugbank, which had been created from a xml file downloaded on 4th of January 2023 from Drugbank (for academic use only) [@citesAsRelated:Wishart2017].
-That file had been translated into nquads using scripts from Bio2RDF.
-
-'php runparser.php parser=drugbank download=false files=all indir=<path1> outdir=<path1> registry_dir=<path3>'
-    
-[@citesAsSourceDocument:bio2rdf-scripts]
+We installed Virtuoso and loaded the drungbank database into the triple store. We already had prepared a .nq version of Drugbank, which had been created from an XML file downloaded on 4th of January 2023 from Drugbank (for academic use only) [@citesAsRelated:Wishart2017].
+That file had been translated into nquads using scripts from Bio2RDF: `php runparser.php parser=drugbank download=false files=all indir=<path1> outdir=<path1> registry_dir=<path3>` [@citesAsSourceDocument:bio2rdf-scripts].
 
 With the following steps:
 
@@ -493,7 +481,7 @@ WHERE {
 }
 ```
 
-The prefix rdfs is correct, the prefix `http://drugbank.ca#` is invented, but fits to the website of drugbank. ChatGPT in version 4 tells us, that we need to specify the prefix, while ChatGPT version 3.5 did not warn about that.
+The prefix `rdfs` is correct, the prefix `http://drugbank.ca#` is invented, but fits to the website of drugbank. ChatGPT in version 4 tells us, that we need to specify the prefix, while ChatGPT version 3.5 did not warn about that.
 
 
 
@@ -600,17 +588,6 @@ This is unexpected and not solvable without presenting ChatGPT the graph structu
 
 ​    
 
-​    
-
-
-
-
-
-# Results
-
-
-# Discussion
-
 # Future Work
 
 ## Refining the query with by generating the Drugbank graph Schema
@@ -618,7 +595,8 @@ This is unexpected and not solvable without presenting ChatGPT the graph structu
 We are investigating the Drugbank represented as Linked Data. Therefore, we are interested in building the ontology/schema to see the structure of the data. Therefore we used the following SPARQL query that we borrowed from [Bio2RDF_query_Dumontier](https://www.w3.org/TR/hcls-dataset/#s6_6) :
 
 ```
-SELECT (COUNT(DISTINCT ?s) AS ?scount) ?stype ?p ?otype  (COUNT(DISTINCT ?o) AS ?ocount)  
+SELECT (COUNT(DISTINCT ?s) AS ?scount) ?stype ?p ?otype
+  (COUNT(DISTINCT ?o) AS ?ocount)  
 { 
  ?s ?p ?o . 
  ?s a ?stype .
@@ -638,15 +616,15 @@ Augment the catalog of queries on DisGenet, using more complex queries.
 
 Michel Dumontier, Alberto Labarga
 
+## Further reading
+
+- https://github.com/vasugr/Natural-Language-To-SPARQL
+- https://github.com/sebferre/sparklis
+- https://github.com/machinalis/quepy
+- https://github.com/xiaoyuin/tntspa
+- https://chat.openai.com
+- https://github.com/micheldumontier/sparql-langchain/
+
 ## References
 
-<!-- the blow should be inline OR in the BiBTeX -->
-
-
-https://github.com/vasugr/Natural-Language-To-SPARQL
-https://github.com/sebferre/sparklis
-https://github.com/machinalis/quepy
-https://github.com/xiaoyuin/tntspa
-https://chat.openai.com
-https://github.com/micheldumontier/sparql-langchain/
 
