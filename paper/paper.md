@@ -6,6 +6,7 @@ tags:
   - ChatGPT
   - AI
   - WikiPathways
+  - FAIR Data Point
 authors:
   - name: Andra Waagmeester
     orcid: 0000-0000-0000-0000
@@ -37,7 +38,6 @@ authors:
   - name: Julio C. Rangel
     orchid: 0000-0001-8132-6341
     affiliation: 8
-
 affiliations:
   - name: Micelio BV
     index: 1
@@ -51,10 +51,10 @@ affiliations:
     index: 5
   - name: Database Center for Life Science
     index: 6
+  - name: ?
+    index: 7
   - name: Data Knowledge Organization Unit, RIKEN 
     index: 8
-    
-
 date: 29 February 2024
 cito-bibliography: paper.bib
 event: SWAT4HCLS24
@@ -62,13 +62,9 @@ biohackathon_name: "BioHackathon SWAT4HCLS 2024"
 biohackathon_url:   "https://www.swat4ls.org/workshops/leiden2024/hackathon/"
 biohackathon_location: "Leiden, the Netherlands, 2024"
 group: Project 4-8
-# URL to project git repo --- should contain the actual paper.md:
-git_url: https://github.com/biohackrxiv/publication-template
-# This is the short authors description that is used at the
-# bottom of the generated paper (typically the first two authors):
+git_url: https://github.com/biohackathon-swat4hcls/2024-hack4-hack8
 authors_short: Andra Waagmeester \emph{et al.}
 ---
-
 
 # Introduction
 
@@ -76,26 +72,32 @@ As part of the BioHackathon SWAT4HCLS 2024, we here report on the topic AI promp
 
 ## Overview of Related work / projects
 
-## WikiPathways VoID use case
+## WikiPathways 
 
-<!-- discuss with Marvin -->
+WikiPathways is a database of biological pathways and an ELIXIR-NL service [@Martens2021;Slenter2018]. The project was involved
+in two hackathon projects as explained in this section.
 
- Involved: Jerven (code fixes), Egon testing, Marvin (WP SPARQL endpoint), Tooba testing ...
+### The VoID statistics use case
 
+Involved:
+* Jerven (code fixes)
+* Egon (testing)
+* Tooba (testing)
+* Marvin (WP SPARQL endpoint)
 
-* things found
-    * graph IRI wrong for `servicedescription` (Egon/Marvin)
-        * discussed, will be updated
-    * Virtuoso limit to 10k impacts output (Egon/Marvin)
-    * statistics on GPML/WPRDF separation needed (or only WPRDF)
-        * e.g. http://rdf.wikipathways.org/wprdf/ for the WPRDF, and  http://rdf.wikipathways.org/gpmlrdf/ for the GPMLRDF
-        * also ontologies in separate graphs? 
-            * Why? we migt be intereted in the usage of the ontologies
-    * license? CCO for WikiPathways, but how to communicate the license for each dataset?
-    *  
-    * running the SPARQL queries to check VoID statistics 
+In this session we explored the VoID header file of WikiPathways [@Martens2021] for enrichment with statistics generated with the
+Jerven Bolleman's VoID statistics tool (XXXXX). The tool did not work out of the box and several code updates were written.
+Furthermore, we noted issues with the WikiPathways SPARQL endpoint. For example, we observed that the graph IRI for the
+`servicedescription` was wrong and needed to be updated. We also ran into the default Virtuoso limit of returning 10 thousand
+rows, affecting the calculation of the statistics. We also realized that statistics are more informative if they would
+be calculate for the WPRDF and GPMLRDF separately. For this, they will need to be loaded into separate graphs in the Virtuoso
+triple sotre, for example with the graph IRIs `http://rdf.wikipathways.org/wprdf/` and `http://rdf.wikipathways.org/gpmlrdf/`.
 
 ### WikiPathways FDP use case
+
+Involved:
+* Egon (development)
+* Eric (discussion)
 
 The WikiPathways FAIR Data Point (FDP) was originally developed in 2017 [@citesAsEvidence:Slenter2018]. During (and around) the hackathon
 we updated the GitHub-hosted FDP. Last year this solution was setup as replacement of the original FDP which was based on dedicated
