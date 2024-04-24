@@ -38,6 +38,12 @@ authors:
   - name: Julio C. Rangel
     orchid: 0000-0001-8132-6341
     affiliation: 8
+  - name: Jerven Bolleman
+    affiliation: 5
+    orchid: 0000-0002-7449-1266
+  - name: Jakub Galgonek
+    orcid: 0000-0002-7038-544X
+    affiliation: 9
 affiliations:
   - name: Micelio BV
     index: 1
@@ -55,13 +61,15 @@ affiliations:
     index: 7
   - name: Data Knowledge Organization Unit, RIKEN 
     index: 8
+  - name: Institute of Organic Chemistry and Biochemistry of the Czech Academy of Sciences
+    index: 9
 date: 29 February 2024
 cito-bibliography: paper.bib
 
 event: SWAT4HCLS24
 biohackathon_name: "BioHackathon SWAT4HCLS 2024"
 biohackathon_url:   "https://www.swat4ls.org/workshops/leiden2024/hackathon/"
-biohackathon_location: "Leiden, the Netherlands, 2024"
+biohackathon_location: "Leiden, The Netherlands, 2024"
 group: Project 4-8
 git_url: https://github.com/biohackathon-swat4hcls/2024-hack4-hack8
 authors_short: Andra Waagmeester \emph{et al.}
