@@ -142,40 +142,38 @@ SELECT * WHERE {
 ```
 
 With void:
-```
-Result,Delay (ms),HTTP requests
-1,162.69260597229004,14
-2,162.85465812683105,14
-3,212.3646821975708,17
-4,378.3809337615967,20
-5,378.5601854324341,20
-6,420.2927780151367,23
-7,465.06996726989746,26
-8,465.21367835998535,26
-9,507.01233673095703,29
-10,599.0587310791016,32
-11,637.3339443206787,35
-TOTAL,639.911449432373,35
-```
 
+|Result|Delay (ms)|HTTP requests|
+| -------- | -------- | -------- |
+|1|162.69260597229004,14|
+|2|162.85465812683105|14|
+|3|212.3646821975708|17|
+|4|378.3809337615967|20|
+|5|378.5601854324341|20|
+|6|420.2927780151367|23|
+|7|465.06996726989746|26|
+|8|465.21367835998535|26|
+|9|507.01233673095703|29|
+|10|599.0587310791016|32|
+|11|637.3339443206787|35|
+|TOTAL|639.911449432373|35|
 
-
-```
 Without void:
-Result,Delay (ms),HTTP requests
-1,159.31932067871094,20
-2,159.54065895080566,20
-3,600.7964477539062,23
-4,647.9744453430176,26
-5,648.5275049209595,26
-6,807.2107524871826,29
-7,850.3266448974609,32
-8,851.1076250076294,32
-9,1003.3682670593262,35
-10,1041.3201503753662,38
-11,1076.443021774292,41
-TOTAL,1079.3609952926636,41
-```
+
+|Result|Delay (ms)|HTTP requests|
+|---|---|---|
+|1|159.31932067871094|20|
+|2|159.54065895080566|20|
+|3|600.7964477539062|23|
+|4|647.9744453430176|26|
+|5|648.5275049209595|26|
+|6|807.2107524871826|29|
+|7|850.3266448974609|32|
+|8|851.1076250076294|32|
+|9|1003.3682670593262|35|
+|10|1041.3201503753662|38|
+|11|1076.443021774292|41|
+|TOTAL|1079.3609952926636|41|
 
 #### Query uniprot40
 
@@ -246,6 +244,8 @@ WHERE {
 Involved: Yasunori, Tarcisio
 
 We started the evaluation of two VoID metadata generators, namely, void-generator and Triple Data Profiler. First, we evaluate if the generated metadata are complementary or the same. We noticed that they are indeed complementary to each other. Secondly, we aimed at combining their results to produce a more complete VoID-based description of a given RDF data source. We found out that merging both tools' VoID results is not straightforward. We identified that the generated output by the tools are structured in different ways even though both rely on VoID.
+
+One difference, now fixed, is that the Triple Data Profiler uses `void:entities` to count the number of classes in a `void:classPartition` while void-generator used `void:triples`. Void-generator was addapted to match the Triple Data Profiler.
 
 ## ChEMBL use case for the VoID auto-generator 
 
@@ -350,6 +350,31 @@ java.lang.OutOfMemoryError: Java heap space
 I am ready to try it again after the next round of bugs fix :-))
 
 
+## VoID testing on locally installed subsets of IDSM
+
+* Testing was performed on the [ISDB](https://zenodo.org/records/8287341) and [MoNA](https://mona.fiehnlab.ucdavis.edu/) datasets, in their RDF forms as contained in the [IDSM](https://idsm.elixir-czech.cz/).
+* Several issues were fixed and several optimizations were made on the VoID generator side.
+* We have identified queries that will need to be better optimized on the IDSM SPARQL engine side.
+
+### Testing on the ISDB subset
+
+| measurement            |     value |
+|------------------------|-----------|
+| ISDB triplets          |  36783950 |
+| ISDB classes           |        18 |
+| ISDB predicates        |        19 |
+| VoID execution time    |      3min |
+| executed queries       |      1786 |
+
+### Testing on the MoNA subset
+
+| measurement            |     value |
+|------------------------|-----------|
+| MoNA triplets          | 282519684 |
+| MoNA classes           |        48 |
+| MoNA predicates        |        34 |
+| VoID execution time    |     23min |
+| executed queries       |     10408 |
 
 ## Validating a given SPARQL query against the VoID description of the target KG
 
@@ -449,7 +474,7 @@ WHERE {
 }
 
 
-Respones
+Responses
 ChatGPT 3.5:
 
 ```sparql
@@ -585,6 +610,24 @@ WHERE {
 The DrugID of Aspirin is actually not the same URI that is connected to the label "Aspirin"@en directly, but indirectly via "http://bio2rdf.org/drugbank_vocabulary:synonym" so we actually need 2 hops to find the DrugID from the URI.
 This is unexpected and not solvable without presenting ChatGPT the graph structure using prior knowledge or additional information.
 
+## Experiment with open source model
+We conducted another experiment to discover the Aspiring URI, this time leveraging the OpenLLama open-source data model.
+Prompt:
+```
+INSTRUCTION
+Please convert the following context into an SPARQL query.
+
+CONTEXT:
+Retrieve the URI of Aspirin
+
+SPARQL:
+```
+```
+Result:
+SELECT DISTINCT ?pv WHERE { ?e pred:name "Aspirin" . ?e ?pv }
+```
+
+It appears that instruct-tuning is necessary to ensure the correct prefix is applied.
 
 ​    
 
