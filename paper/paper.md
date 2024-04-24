@@ -94,7 +94,7 @@ Furthermore, we noted issues with the WikiPathways SPARQL endpoint. For example,
 `servicedescription` was wrong and needed to be updated. We also ran into the default Virtuoso limit of returning 10 thousand
 rows, affecting the calculation of the statistics. We also realized that statistics are more informative if they would
 be calculate for the WPRDF and GPMLRDF separately. For this, they will need to be loaded into separate graphs in the Virtuoso
-triple sotre, for example with the graph IRIs `http://rdf.wikipathways.org/wprdf/` and `http://rdf.wikipathways.org/gpmlrdf/`.
+triple store, for example with the graph IRIs `http://rdf.wikipathways.org/wprdf/` and `http://rdf.wikipathways.org/gpmlrdf/`.
 
 ### WikiPathways FDP use case
 
@@ -112,7 +112,7 @@ However, the solution had two shortcomings. First, the mime type returns as `Con
 to further explore enriching the FDP for use in EJP-RD. We updated the setup of the repository to have GitHub host the `TTL` files
 with the proper mime type. This required renaming the files from `index.html` to `index.tll`. The content of the files was adjusted
 accordingly to ensure the linked data nature was not broken. That is, the IRIs used by the various resources now end with `index.ttl`.
-We note that this leaks some implementation detail.
+We note that this leaks some implementation details.
 
 For the second, we explored the use of the VoID statistics work in Project, as reported elsewhere in this report. We envision
 integrating the results of such an statistics analysis into the VoID header file for the RDF data and possible integrate some
